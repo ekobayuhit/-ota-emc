@@ -36,8 +36,4 @@ Software License : GNU V3 General Public License
 <p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_1.JPG", width="600" height="400"/></p>
 <p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_2.JPG", width="600" height="400"/></p>
 <p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_3.JPG", width="600" height="400"/></p>
-<<<<<<< HEAD
 <p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iota-emc-hardware.jpg", width="500" height="500"/></p>
-=======
-<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iota-emc-hardware.jpg", width="500" height="500"/></p>
->>>>>>> d0e7dd285534a16043450be22190da2df34e6a54

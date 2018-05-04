@@ -1,0 +1,272 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>i-emc</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="description" content="IoT based smart device for monitoring and controlling home appliances">
+  <meta name="author" content="Electrical Engineering UNSOED">
+  <meta name="theme-color" content="#000000" />
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+
+<body>
+  <div id="page">
+    <div class="box">
+      <h1>i-<span>emc</span></h1>
+      <h3>iota Energy Monitoring and Controlling</h3>
+    </div>
+
+    <div class="loading" data-bind="visible: !initialised()">
+      Loading, please wait...
+    </div>
+
+    <div id="left-hand-container" data-bind="visible: initialised" style="display: none">
+      <div id="one">
+        <h2>1. WiFi Network</h2>
+        <div class="itembody-wrapper">
+          <p><b>Mode:</b> <span id="mode" data-bind="text: status.fullMode"></span></p>
+
+          <div id="client-view" data-bind="visible: status.isWifiClient">
+            <table>
+              <tr>
+                <th>Network</th>
+                <th>RSSI dBm</th>
+              </tr>
+                <tbody id="sta-ssid">
+                  <tr>
+                    <td data-bind="text: config.ssid"></td>
+                    <td data-bind="text: status.srssi"></td>
+                  </tr>
+                </tbody>
+            </table>
+            <p><b>IP Address:</b><br><a data-bind="text: status.ipaddress, attr: {href: 'http://'+status.ipaddress()}"></a></p>
+            <button id="apoff" data-bind="visible: status.isWifiAccessPoint">Turn off Access Point</button>
+          </div>
+
+          <div id="ap-view" data-bind="visible: !status.isWifiClient() &amp;&amp; !wifiConnecting()">
+            <p>Connect to network:</p>
+            <table>
+              <tr>
+                <th>Select</th>
+                <th>Network</th>
+                <th>RSSI dBm</th>
+              </tr>
+              <tbody id="networks" data-bind="foreach: status.networks">
+                <tr>
+                  <td><input class='networkcheckbox' name='network' data-bind="checkedValue: $data, checked: $root.config.ssid"
+                      type='radio'></td>
+                  <td data-bind="text: $data"></td>
+                  <td data-bind="text: $root.status.rssi()[$index()]"></td>
+                </tr>
+              </tbody>
+            </table>
+            <p data-bind="text: config.ssid"></p>
+            <p>
+              <b>Passkey:</b><br>
+              <input type="text" data-bind="textInput: config.pass">
+              <button data-bind="click: saveNetwork, text: (saveNetworkFetching() ? 'Saving' : (saveNetworkSuccess() ? 'Saved' : 'Connect')), disable: saveAdminFetching">Connect</button>
+              <br><p>To Scan WiFi Network...Please press button below</p>
+              <button id="ScanWifi">Scan</button>
+			</p>
+          </div>
+
+          <div data-bind="visible: wifiConnecting">
+            <p>Connecting to WiFi Network...Please wait 10s</p>
+          </div>
+        </div>
+      </div>
+      <!--//////////////////////////////////////////////////////////////////////////////////-->
+      <div id="two">
+        <h2>2. Emoncms</h2>
+        <div class="itembody-wrapper">
+          <b>Emoncms Server*:</b><br>
+          <input type="text" data-bind="textInput: config.emoncms_server"><br/>
+          <span>
+            e.g '<a href="https://emoncms.org">emoncms.org</a>',
+            'emonpi/emoncms', or '192.168.1.4/emoncms'
+          </span><br/>
+          <p>
+            <b>Emoncms Node Name*:</b><br>
+            <input type="text" data-bind="textInput: config.emoncms_node">
+          </p>
+          <p>
+            <b>Write apikey*:</b><br>
+            <input type="text" data-bind="textInput: config.emoncms_apikey"><br>
+          </p>
+          <p>
+            <b>SSL SSH-1 Fingerprint:</b><br>
+            <input type="text" data-bind="textInput: config.emoncms_fingerprint"><br>
+            <br></p>HTTPS will be enabled if present e.g:<br>
+            <br>
+            <div class="small-text">
+              7D:82:15:BE:D7:BC:72:58:87:7D:8E:40:D4:80:BA:1A:9F:8B:8D:DA
+            </div><br>
+            <button data-bind="click: saveEmonCms, text: (saveEmonCmsFetching() ? 'Saving' : (saveEmonCmsSuccess() ? 'Saved' : 'Save')), disable: saveEmonCmsFetching">Save</button>
+            <b>&nbsp; Connected:&nbsp;<span data-bind="text: '1' === status.emoncms_connected() ? 'Yes' : 'No'"></span></b>
+            <span data-bind="visible: '1' === status.emoncms_connected()"></br></br><b>&nbsp; Successful messages:&nbsp;<span data-bind="text: status.packets_success()+'/'+status.packets_sent()+' '+((status.packets_success()/status.packets_sent())*100)+'%'"></span></b></span>
+          </p>
+        </div>
+      </div>
+      <!--//////////////////////////////////////////////////////////////////////////////////-->
+      <div id="three">
+        <h2>3. MQTT</h2>
+        <div class="itembody-wrapper">
+          <p><b>MQTT Server*:</b><br>
+            <input data-bind="textInput: config.mqtt_server" type="text"><br/>
+            <span class="small-text">e.g 'emonpi', 'test.mosquitto.org' or '192.168.1.4'</span><br>
+          </p>
+          <p><b>MQTT Base-topic*:</b><br>
+            <input data-bind="textInput: config.mqtt_topic" type="text"><br/>
+            <span class="small-text">
+              e.g 'emon/emonesp', 'emon/heatpump'<br>
+              Data will be published to sub topic e.g. 'emon/emonesp/CT1'
+            </span>
+          </p>
+          <p><b>MQTT Feed-name prefix:</b><br>
+            <input data-bind="textInput: config.mqtt_feed_prefix" type="text"><br/>
+            <span class="small-text">
+              Value to prefix the feed names with: &#60;base-topic&#62;/&#60;prefix&#62;&#60;feed-name&#62;. Required for posting to AdafruitIO.
+              Leave blank for no prefix.
+            </span>
+          </p>
+          <p><b>Username:</b><br>
+            <input data-bind="textInput: config.mqtt_user" type="text"><br/>
+            <span class="small-text">Leave blank for authentication</span>
+          </p>
+          <p><b>Password:</b><br>
+            <input data-bind="textInput: config.mqtt_pass" type="password"><br/>
+            <span class="small-text">Leave blank for no authentication</span><br>
+          <p>
+            <button data-bind="click: saveMqtt, text: (saveMqttFetching() ? 'Saving' : (saveMqttSuccess() ? 'Saved' : 'Save')), disable: saveMqttFetching">Save</button>
+            <b>&nbsp; Connected:&nbsp;<span data-bind="text: '1' === status.mqtt_connected() ? 'Yes' : 'No'"></span></b>
+            <br>
+            <div data-bind="visible: '1' === status.mqtt_connected()">
+              <br><b>Time MQTT Operation (ms) : &nbsp;<span data-bind="text: status.timemqtt"></span></b><br>
+              <br><b>Count Disconnected : &nbsp;<span data-bind="text: status.count_mqttdisconnect"></span></b><br>
+			</div>
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--//////////////////////////////////////////////////////////////////////////////////-->
+    <div id="right-hand-container" data-bind="visible: initialised" style="display: none">
+      <div id="four">
+        <h2>4. Latest Data</h2>
+        <div class="itembody-wrapper">
+          <br><b>Time Operation Device (ms) : &nbsp;<span data-bind="text: status.TimeOperation"></span></b><br>
+          <table>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+            </tr>
+            <tbody data-bind="foreach: last.values">
+              <tr>
+                <td data-bind="text: key"></td>
+                <td data-bind="text: value"></td>
+              </tr>
+            </tbody>
+          </table><br>
+		      <br><b>State Load : &nbsp;<span data-bind="text: '1' === status.state_load() ? 'ON' : 'OFF'"></span></span></b><br><br>
+          <div data-bind="visible: '0' === status.sch_state()">
+            <div data-bind="visible: '1' === status.state_load()">
+              <button id="LoadOFF">Turn OFF</button>
+            </div>
+            <div data-bind="visible: '0' === status.state_load()">
+              <button id="LoadON">Turn ON</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--//////////////////////////////////////////////////////////////////////////////////-->
+      <div id="five">
+        <h2>5. Scheduler</h2>
+        <div class="itembody-wrapper">
+				    <p>Turn ON load automatively on the setting time by user.</p>
+            <br><b>Current Time : &nbsp;<span data-bind="text: status.CurrentTime"></span></b><br>
+				    <br><b>State : &nbsp;<span data-bind="text: '1' === status.sch_state() ? 'Active' : 'Non-Active'"></span></b><br>
+				    <table>
+              <th>Date Start</th><th>Date Stop</th>
+              <tr><td data-bind="text: status.sch_datestart"></td>
+                <td data-bind="text: status.sch_datestop"></td></tr>
+							<th>Time Start</th><th>Time Stop</th>
+              <tr><td data-bind="text: status.sch_timestart"></td>
+                <td data-bind="text: status.sch_timestop"></td></tr>
+            </table><br>
+            <div data-bind="visible: '0' === status.sch_state()">
+			           <button id="sch_TurnON">Active</button>
+            </div>
+            <div data-bind="visible: '1' === status.sch_state()">
+		            <button id="sch_TurnOFF">De-active</button>
+            </div>
+            <br><br>
+            <P>To setting time please input all parameter below, click button 'Save' then click button 'Active'.
+					  <p><b>Date start:</b><br>
+				    <input data-bind="textInput: config.schdatestart" type="text"></p><span>e.g 26 Nov 2017 -> '26112017'</span><br>
+					  <p><b>Time start:</b><br>
+				    <input data-bind="textInput: config.schtimestart" type="text"></p><span>e.g for 9.30 PM -> '213000'</span><br>
+					  <p><b>Date stop:</b><br>
+					  <input data-bind="textInput: config.schdatestop" type="text"></p><span>e.g 27 Nov 2017 -> '27112017'</span><br>
+					  <p><b>Time stop:</b><br>
+					  <input data-bind="textInput: config.schtimestop" type="text"></p><span>e.g 5.00 AM -> '050000'</span><br>
+            <button data-bind="click: saveSchedule, text: (saveScheduleFetching() ? 'Saving' : (saveScheduleSuccess() ? 'Saved' : 'Save')), disable: saveScheduleFetching">Save</button>
+            <br><br>
+        </div>
+      </div>
+      <div id="five">
+          <h2>6. Data Logger</h2>
+          <div class="itembody-wrapper">
+            <p>Store data into SD card.</p>
+            <br><b>Init : &nbsp;<span data-bind="text: '1' === status.sdcard_init() ? 'Sucess' : 'Failed'"></span></b><br>
+					  <div data-bind="visible: '0' === status.sdcard_init()"> Initialization sd card is failed, please check sd card config or you can restart device.</div>
+					  <div data-bind="visible: '1' === status.sdcard_init()">
+					  <br><b>State : &nbsp;<span data-bind="text: '1' === status.sdcard_state() ? 'Active' : 'Non-Active'"></span></b><br>
+					  <div data-bind="visible: '0' === status.sdcard_state()"><button id="SDcard-Active">Active</button><br></div>
+					  <div data-bind="visible: '1' === status.sdcard_state()"><button id="SDcard-Deactive">De-active</button><br></div>
+					  <button id="SDcard-Reset">Reset</button>
+					  </div>
+          </div>
+        </div>
+	  <div id="five">
+        <h2>7. Admin</h2>
+        <div class="itembody-wrapper">
+          <p>
+            <b>Username:</b><br>
+            <input type="text" value="admin" data-bind="textInput: config.www_username">
+          </p>
+          <p>
+            <b>Password:</b><br>
+            <input type="text" data-bind="textInput: config.www_password"><br><br>
+            <span>Web interface HTTP authentication.</span><br><br>
+            <button data-bind="click: saveAdmin, text: (saveAdminFetching() ? 'Saving' : (saveAdminSuccess() ? 'Saved' : 'Save')), disable: saveAdminFetching">Save</button>
+          </p>
+        </div>
+      </div>
+      <div id="seven">
+        <h2>8. System</h2>
+        <div class="itembody-wrapper">
+          <p><b>Chip ID:</b> <span data-bind="text: status.chip_id()"></span></p>
+          <p><b>Free RAM:</b> <span data-bind="text: scaleString(status.free_heap(), 1024, 0) + 'K'"></span></p>
+          <p><b>Flash Size:</b> <span data-bind="text: scaleString(config.espflash(), 1024, 0) + 'K'"></span></p>
+          <p><b>Version:</b> <a href="https://github.com/openenergymonitor/EmonESP/releases">v<span data-bind="text: config.version"></span></a></p>
+          <button id="restart">Restart</button>
+          <button id="reset">Factory Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-small-scrn">
+    Powered by <a href="http://openenergymonitor.org"><span>Open</span>EnergyMonitor.org</a>
+  </div>
+  <div id="footer-large-scrn">
+    Powered by <a href="http://openenergymonitor.org"><span>Open</span>EnergyMonitor.org</a>
+  </div>
+  <script src="lib.js" type="application/javascript"></script>
+  <script src="config.js" type="application/javascript"></script>
+</body>
+
+</html>

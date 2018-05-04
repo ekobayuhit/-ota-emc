@@ -33,7 +33,7 @@ Software powered by EmonESP (https://github.com/openenergymonitor/EmonESP)
 Software License : GNU V3 General Public License
 
 ### Documentation
-<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_1.JPG", width="500" height="400"/></p>
-<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_2.JPG", width="500" height="400"/></p>
-<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_3.JPG", width="500" height="400"/></p>
-<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iota-emc-hardware.jpg", width="500" height="400"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_1.JPG", width="600" height="400"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_2.JPG", width="600" height="400"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iemc_3.JPG", width="600" height="400"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/blob/master/software/docs/iota-emc-hardware.jpg", width="500" height="500"/></p>

@@ -32,3 +32,8 @@ Layout : Noer Aditama
 Software powered by EmonESP (https://github.com/openenergymonitor/EmonESP)
 Software License : GNU V3 General Public License
 
+### Documentation
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/software/docs/iemc_1.jpg", width="500" height="150"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/software/docs/iemc_2.jpg", width="500" height="150"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/software/docs/iemc_3.jpg", width="500" height="150"/></p>
+<p align="center"><img src ="https://github.com/ekobayuhit/iota-emc/software/docs/iota-emc-hardware.jpg", width="500" height="150"/></p>
